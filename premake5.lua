@@ -10,13 +10,13 @@ project "msdf-atlas-gen"
     files 
     {
         "msdf-atlas-gen/**.cpp",
-        "msdf-atlas-gen/**.hpp"
+        "msdf-atlas-gen/**.hpp",
         "msdf-atlas-gen/**.h"
     }
 
     includedirs 
     {
-        "msdf-atlas-gen"
+        "msdf-atlas-gen",
         "%{wks.location}/TerranEngine/vendor/msdfgen/",
     }
 
