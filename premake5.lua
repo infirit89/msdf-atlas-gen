@@ -16,6 +16,7 @@ project "msdf-atlas-gen"
 
     includedirs 
     {
+        "msdf-atlas-gen"
         "%{wks.location}/TerranEngine/vendor/msdfgen/",
     }
 
