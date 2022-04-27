@@ -18,6 +18,7 @@ project "msdf-atlas-gen"
     {
         "msdf-atlas-gen",
         "%{wks.location}/TerranEngine/vendor/msdfgen/",
+        "%{wks.location}/TerranEngine/vendor/msdfgen/include",
     }
 
     links 
