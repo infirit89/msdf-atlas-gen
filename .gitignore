@@ -14,6 +14,7 @@ x64/
 *.VC.opendb
 *.VC.db
 bin/msdf-atlas-gen
+.vs
 bin/*.lib
 output.png
 out/
