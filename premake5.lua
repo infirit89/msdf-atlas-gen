@@ -1,3 +1,5 @@
+include "msdfgen"
+
 project "msdf-atlas-gen"
     kind "StaticLib"
     language "C++"
@@ -17,8 +19,8 @@ project "msdf-atlas-gen"
     includedirs 
     {
         "msdf-atlas-gen",
-        "%{wks.location}/TerranEngine/vendor/msdfgen/",
-        "%{wks.location}/TerranEngine/vendor/msdfgen/include",
+        "msdfgen/",
+        "msdfgen/include",
     }
 
     links 
