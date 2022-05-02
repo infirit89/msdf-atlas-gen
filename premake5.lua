@@ -28,6 +28,11 @@ project "msdf-atlas-gen"
         "msdfgen"
     }
 
+    defines 
+    {
+        "_CRT_SECURE_NO_WARNINGS"
+    }
+
     filter "system:windows"
         systemversion "latest"
 
