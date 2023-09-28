@@ -20,6 +20,7 @@
 *.VC.db
 /bin/*.lib
 /bin/msdf-atlas-gen
+*.vcxproj
 bin/msdf-atlas-gen
 .vs
 bin/*.lib
@@ -27,3 +28,5 @@ output.png
 CMakeUserPresets.json
 out/
 /cmake-gen.bat
+bin/
+bin-int/
