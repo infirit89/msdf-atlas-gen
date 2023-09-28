@@ -23,6 +23,11 @@ project "msdf-atlas-gen"
         "msdfgen/include",
     }
 
+    disablewarnings 
+    {
+        4267
+    }
+
     links 
     {
         "msdfgen"
