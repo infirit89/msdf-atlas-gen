@@ -4,7 +4,7 @@ project "msdf-atlas-gen"
     kind "StaticLib"
     language "C++"
     cppdialect "C++11"
-    staticruntime "on"
+    staticruntime "off"
 
     architecture "x86_64"
 
