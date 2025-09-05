@@ -12,6 +12,10 @@ template <typename T, int N, GeneratorFunction<T, N> GEN_FN, class AtlasStorage>
 ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::ImmediateAtlasGenerator(int width, int height) : storage(width, height), threadCount(1) { }
 
 template <typename T, int N, GeneratorFunction<T, N> GEN_FN, class AtlasStorage>
+template <typename... ARGS>
+ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::ImmediateAtlasGenerator(int width, int height, ARGS... storageArgs) : storage(width, height, storageArgs...), threadCount(1) { }
+
+template <typename T, int N, GeneratorFunction<T, N> GEN_FN, class AtlasStorage>
 void ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::generate(const GlyphGeometry *glyphs, int count) {
     int maxBoxArea = 0;
     for (int i = 0; i < count; ++i) {
@@ -70,12 +74,12 @@ void ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::setThreadCount(int thr
 }
 
 template <typename T, int N, GeneratorFunction<T, N> GEN_FN, class AtlasStorage>
-const AtlasStorage & ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::atlasStorage() const {
+const AtlasStorage &ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::atlasStorage() const {
     return storage;
 }
 
 template <typename T, int N, GeneratorFunction<T, N> GEN_FN, class AtlasStorage>
-const std::vector<GlyphBox> & ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::getLayout() const {
+const std::vector<GlyphBox> &ImmediateAtlasGenerator<T, N, GEN_FN, AtlasStorage>::getLayout() const {
     return layout;
 }
 

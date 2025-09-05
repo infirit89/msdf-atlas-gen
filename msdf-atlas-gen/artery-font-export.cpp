@@ -1,7 +1,7 @@
 
 #include "artery-font-export.h"
 
-#ifdef ARTERY_FONT
+#ifndef MSDF_ATLAS_NO_ARTERY_FONT
 
 #include <artery-font/std-artery-font.h>
 #include <artery-font/stdio-serialization.h>
@@ -60,53 +60,56 @@ namespace msdf_atlas {
         artery_font::StdArteryFont<REAL> arfont = { };
         arfont.metadataFormat = artery_font::METADATA_NONE;
 
-        for (int i = 0; i < fontCount; ++i) {
-            const FontGeometry& font = fonts[i];
-            GlyphIdentifierType identifierType = font.getPreferredIdentifierType();
-            const msdfgen::FontMetrics& fontMetrics = font.getMetrics();
-            artery_font::StdFontVariant<REAL> fontVariant = { };
-            fontVariant.codepointType = convertCodepointType(identifierType);
-            fontVariant.imageType = convertImageType(properties.imageType);
-            fontVariant.metrics.fontSize = REAL(properties.fontSize * fontMetrics.emSize);
-            if (properties.imageType != ImageType::HARD_MASK)
-                fontVariant.metrics.distanceRange = REAL(properties.pxRange);
-            fontVariant.metrics.emSize = REAL(fontMetrics.emSize);
-            fontVariant.metrics.ascender = REAL(fontMetrics.ascenderY);
-            fontVariant.metrics.descender = REAL(fontMetrics.descenderY);
-            fontVariant.metrics.lineHeight = REAL(fontMetrics.lineHeight);
-            fontVariant.metrics.underlineY = REAL(fontMetrics.underlineY);
-            fontVariant.metrics.underlineThickness = REAL(fontMetrics.underlineThickness);
-            const char* name = font.getName();
-            if (name)
-                fontVariant.name.string = name;
-            fontVariant.glyphs = artery_font::StdList<artery_font::Glyph<REAL> >(font.getGlyphs().size());
-            int j = 0;
-            for (const GlyphGeometry& glyphGeom : font.getGlyphs()) {
-                artery_font::Glyph<REAL>& glyph = fontVariant.glyphs[j++];
-                glyph.codepoint = glyphGeom.getIdentifier(identifierType);
-                glyph.image = 0;
-                double l, b, r, t;
-                glyphGeom.getQuadPlaneBounds(l, b, r, t);
-                glyph.planeBounds.l = REAL(l);
-                glyph.planeBounds.b = REAL(b);
-                glyph.planeBounds.r = REAL(r);
-                glyph.planeBounds.t = REAL(t);
-                glyphGeom.getQuadAtlasBounds(l, b, r, t);
-                glyph.imageBounds.l = REAL(l);
-                glyph.imageBounds.b = REAL(b);
-                glyph.imageBounds.r = REAL(r);
-                glyph.imageBounds.t = REAL(t);
-                glyph.advance.h = REAL(glyphGeom.getAdvance());
-                glyph.advance.v = REAL(0);
-            }
-            switch (identifierType) {
+    arfont.variants = artery_font::StdList<typename artery_font::StdArteryFont<REAL>::Variant>(fontCount);
+    for (int i = 0; i < fontCount; ++i) {
+        const FontGeometry &font = fonts[i];
+        GlyphIdentifierType identifierType = font.getPreferredIdentifierType();
+        const msdfgen::FontMetrics &fontMetrics = font.getMetrics();
+        typename artery_font::StdArteryFont<REAL>::Variant &fontVariant = arfont.variants[i] = typename artery_font::StdArteryFont<REAL>::Variant();
+        fontVariant.codepointType = convertCodepointType(identifierType);
+        fontVariant.imageType = convertImageType(properties.imageType);
+        fontVariant.metrics.fontSize = REAL(properties.fontSize*fontMetrics.emSize);
+        if (properties.imageType != ImageType::HARD_MASK) {
+            fontVariant.metrics.distanceRange = REAL(properties.pxRange.upper-properties.pxRange.lower);
+            fontVariant.metrics.distanceRangeMiddle = REAL(.5*(properties.pxRange.lower+properties.pxRange.upper));
+        }
+        fontVariant.metrics.emSize = REAL(fontMetrics.emSize);
+        fontVariant.metrics.ascender = REAL(fontMetrics.ascenderY);
+        fontVariant.metrics.descender = REAL(fontMetrics.descenderY);
+        fontVariant.metrics.lineHeight = REAL(fontMetrics.lineHeight);
+        fontVariant.metrics.underlineY = REAL(fontMetrics.underlineY);
+        fontVariant.metrics.underlineThickness = REAL(fontMetrics.underlineThickness);
+        const char *name = font.getName();
+        if (name)
+            (std::string &) fontVariant.name = name;
+        fontVariant.glyphs = artery_font::StdList<artery_font::Glyph<REAL> >(font.getGlyphs().size());
+        int j = 0;
+        for (const GlyphGeometry &glyphGeom : font.getGlyphs()) {
+            artery_font::Glyph<REAL> &glyph = fontVariant.glyphs[j++];
+            glyph.codepoint = glyphGeom.getIdentifier(identifierType);
+            glyph.image = 0;
+            double l, b, r, t;
+            glyphGeom.getQuadPlaneBounds(l, b, r, t);
+            glyph.planeBounds.l = REAL(l);
+            glyph.planeBounds.b = REAL(b);
+            glyph.planeBounds.r = REAL(r);
+            glyph.planeBounds.t = REAL(t);
+            glyphGeom.getQuadAtlasBounds(l, b, r, t);
+            glyph.imageBounds.l = REAL(l);
+            glyph.imageBounds.b = REAL(b);
+            glyph.imageBounds.r = REAL(r);
+            glyph.imageBounds.t = REAL(t);
+            glyph.advance.h = REAL(glyphGeom.getAdvance());
+            glyph.advance.v = REAL(0);
+        }
+        switch (identifierType) {
             case GlyphIdentifierType::GLYPH_INDEX:
                 for (const std::pair<std::pair<int, int>, double>& elem : font.getKerning()) {
                     artery_font::KernPair<REAL> kernPair = { };
                     kernPair.codepoint1 = elem.first.first;
                     kernPair.codepoint2 = elem.first.second;
                     kernPair.advance.h = REAL(elem.second);
-                    fontVariant.kernPairs.vector.push_back((artery_font::KernPair<REAL>&&) kernPair);
+                    ((std::vector<artery_font::KernPair<REAL> > &) fontVariant.kernPairs).push_back((artery_font::KernPair<REAL> &&) kernPair);
                 }
                 break;
             case GlyphIdentifierType::UNICODE_CODEPOINT:
@@ -118,31 +121,33 @@ namespace msdf_atlas {
                         kernPair.codepoint1 = glyph1->getCodepoint();
                         kernPair.codepoint2 = glyph2->getCodepoint();
                         kernPair.advance.h = REAL(elem.second);
-                        fontVariant.kernPairs.vector.push_back((artery_font::KernPair<REAL>&&) kernPair);
+                        ((std::vector<artery_font::KernPair<REAL> > &) fontVariant.kernPairs).push_back((artery_font::KernPair<REAL> &&) kernPair);
                     }
                 }
                 break;
-            }
-            arfont.variants.vector.push_back((artery_font::StdFontVariant<REAL>&&) fontVariant);
         }
+    }
 
-        {
-            artery_font::StdImage image = { };
-            image.width = atlas.width;
-            image.height = atlas.height;
-            image.channels = N;
-            image.imageType = convertImageType(properties.imageType);
-            switch (properties.imageFormat) {
+    arfont.images = artery_font::StdList<typename artery_font::StdArteryFont<REAL>::Image>(1);
+    {
+        typename artery_font::StdArteryFont<REAL>::Image &image = arfont.images[0] = typename artery_font::StdArteryFont<REAL>::Image();
+        image.width = atlas.width;
+        image.height = atlas.height;
+        image.channels = N;
+        image.imageType = convertImageType(properties.imageType);
+        switch (properties.imageFormat) {
+        #ifndef MSDFGEN_DISABLE_PNG
             case ImageFormat::PNG:
                 image.encoding = artery_font::IMAGE_PNG;
                 image.pixelFormat = artery_font::PIXEL_UNSIGNED8;
-                if (!encodePng(image.data.vector, atlas))
+                if (!encodePng((std::vector<byte> &) image.data, atlas))
                     return false;
                 break;
+        #endif
             case ImageFormat::TIFF:
                 image.encoding = artery_font::IMAGE_TIFF;
                 image.pixelFormat = artery_font::PIXEL_FLOAT32;
-                if (!encodeTiff(image.data.vector, atlas))
+                if (!encodeTiff((std::vector<byte> &) image.data, atlas))
                     return false;
                 break;
             case ImageFormat::BINARY:
@@ -175,9 +180,8 @@ namespace msdf_atlas {
                 break;
             default:
                 return false;
-            }
-            arfont.images.vector.push_back((artery_font::StdImage&&)image);
         }
+    }
 
         return artery_font::writeFile(arfont, filename);
     }
@@ -191,4 +195,4 @@ namespace msdf_atlas {
 
 }
 
-#endif // ARTERY_FONT
+#endif
