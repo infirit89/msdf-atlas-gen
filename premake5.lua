@@ -6,44 +6,48 @@ project "msdf-atlas-gen"
     cppdialect "C++11"
     staticruntime "off"
 
-    architecture "x86_64"
-
     targetdir ("%{prj.location}/bin/" .. outputdir)
     objdir ("%{prj.location}/bin-int/" .. outputdir)
 
-    files 
+    files
     {
         "msdf-atlas-gen/**.cpp",
         "msdf-atlas-gen/**.hpp",
         "msdf-atlas-gen/**.h"
     }
 
-    includedirs 
+    includedirs
     {
         "msdf-atlas-gen",
         "msdfgen/",
         "msdfgen/include",
     }
 
-    disablewarnings 
-    {
-        4267
-    }
-
-    links 
+    links
     {
         "msdfgen"
     }
 
-    defines 
+    defines
     {
-        "_CRT_SECURE_NO_WARNINGS"
+        "_CRT_SECURE_NO_WARNINGS",
+        "MSDF_ATLAS_NO_ARTERY_FONT",
+        "MSDFGEN_PUBLIC=",
     }
 
     filter "system:windows"
+        architecture "x86_64"
         systemversion "latest"
 
-    filter "configurations:Debug"        
+        disablewarnings
+        {
+            4267
+        }
+
+    filter "system:macosx"
+		architecture "ARM64"
+
+    filter "configurations:Debug"
         runtime "Debug"
         symbols "on"
 
